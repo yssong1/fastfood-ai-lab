@@ -1,0 +1,41 @@
+Please implement for this Event Storming Model:
+
+{"_type":"BoundedContext","name":"store","aggregates":[{"_type":"Aggregate","name":"Store","aggregateRoot":{"_type":"AggregateRoot","fieldDescriptors":[{"_type":"FieldDescriptor","name":"id","className":"Long"},{"_type":"FieldDescriptor","name":"orderId","className":"Long"},{"_type":"FieldDescriptor","name":"userId","className":"String"},{"_type":"FieldDescriptor","name":"menuId","className":"Long"},{"_type":"FieldDescriptor","name":"menuName","className":"String"},{"_type":"FieldDescriptor","name":"qty","className":"Integer"},{"_type":"FieldDescriptor","name":"address","className":"String"},{"_type":"FieldDescriptor","name":"status","className":"String"},{"_type":"FieldDescriptor","name":"cookingDt","className":"Date"}]},"events":[{"_type":"Event","name":"OrderAccepted","fieldDescriptors":[{"_type":"FieldDescriptor","name":"id","className":"Long"},{"_type":"FieldDescriptor","name":"orderId","className":"Long"},{"_type":"FieldDescriptor","name":"userId","className":"String"},{"_type":"FieldDescriptor","name":"menuId","className":"Long"},{"_type":"FieldDescriptor","name":"menuName","className":"String"},{"_type":"FieldDescriptor","name":"qty","className":"Integer"},{"_type":"FieldDescriptor","name":"address","className":"String"},{"_type":"FieldDescriptor","name":"status","className":"String"},{"_type":"FieldDescriptor","name":"cookingDt","className":"Date"}]},{"_type":"Event","name":"CookStarted","fieldDescriptors":[{"_type":"FieldDescriptor","name":"id","className":"Long"},{"_type":"FieldDescriptor","name":"orderId","className":"Long"},{"_type":"FieldDescriptor","name":"userId","className":"String"},{"_type":"FieldDescriptor","name":"menuId","className":"Long"},{"_type":"FieldDescriptor","name":"menuName","className":"String"},{"_type":"FieldDescriptor","name":"qty","className":"Integer"},{"_type":"FieldDescriptor","name":"address","className":"String"},{"_type":"FieldDescriptor","name":"status","className":"String"},{"_type":"FieldDescriptor","name":"cookingDt","className":"Date"}]},{"_type":"Event","name":"CookCancelled","fieldDescriptors":[{"_type":"FieldDescriptor","name":"id","className":"Long"},{"_type":"FieldDescriptor","name":"orderId","className":"Long"},{"_type":"FieldDescriptor","name":"userId","className":"String"},{"_type":"FieldDescriptor","name":"menuId","className":"Long"},{"_type":"FieldDescriptor","name":"menuName","className":"String"},{"_type":"FieldDescriptor","name":"qty","className":"Integer"},{"_type":"FieldDescriptor","name":"address","className":"String"},{"_type":"FieldDescriptor","name":"status","className":"String"},{"_type":"FieldDescriptor","name":"cookingDt","className":"Date"}]}],"commands":[{"_type":"Command","name":"start cook","fieldDescriptors":[]}]}],"policies":[{"_type":"Policy","name":"accept order","fieldDescriptors":[]},{"_type":"Policy","name":"cancel cook","fieldDescriptors":[]}]}
+
+
+I want to utilize following techniques:
+
+- clean architecture
+- spring-boot3
+- spring-data-rest
+- JPA (must use package jakarta.persistence.* instead of javax.persistence.*)
+- H2 DB
+- Lombok
+- Kafka with spring-cloud-streams library (must use Consumer @Beans instead of @StreamListener)
+- JUnit Test
+
+
+SELF-CRITICISM: 
+
+ - when you create pom.xml, USE parent project to spring boot 3.1.4
+ - when you create pom.xml, DO NOT missing data-rest dependency
+ - when you create pom.xml, you MUST specify the 2022.0.3 for the spring-cloud, 4.0.4 for the spring-cloud-streams version in properties
+ - Also, in pom.xml, use 'fastfood' as the groupId of the project and 'store' as the artifactId.
+ - Please generate start from pom.xml
+
+ - When you create application.yml, You need to activate 'default' profiles: (spring.config.activate.on-profile: default)
+ - Configure to use local Kafka (spring.cloud.stream.kafka.binder.brokers: localhost:9092)  
+ - Set up rules to route to different functions based on the 'type' of the message header. These must be defined as the value of the 'spring.cloud.function.routing-expression' key in 'application.yml'. If they're generated as 'spring.cloud.stream', they must be created under the 'cloud' in the same position as the 'stream', not under the 'stream'.
+ - The routing rule is: 'OrderPlaced' should be routed to the 'wheneverOrderPlaced_AcceptOrder' function,'OrderCancelled' should be routed to the 'wheneverOrderCancelled_CancelCook' function, and in other cases, it should be routed to the 'discardFunction'.
+ - Message binding settings has :
+ - Consumer configuration: Through the 'functionRouter-in-0' binding, it belongs to the store group and receives messages from the 'fastfood' destination. set contentType to application/json.
+ - Producer configuration: Sends messages to the 'fastfood' destination via the 'producer-out-0' binding. set contentType to application/json.
+
+ - You must create main application to run the application.
+ - Kafka Consumer Beans must not be created in @Configuration Config file, but Each Consumer must be created as Bean in a Service class that leverages domain events with an appropriate Repository and StreamBridge. And Service class must have @Transactional annotation at the class level.
+ - When you create execution shell (run.sh), please add '--no-transfer-progress' option not to output transfer progress if there's mvn command:
+
+
+```
+mvn [command] --no-transfer-progress
+```
