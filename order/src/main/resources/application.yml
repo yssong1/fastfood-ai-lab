@@ -31,32 +31,3 @@ spring:
           contentType: application/json
 server:
   port: 8081
----  
-spring:
-  config:
-    activate:
-      on-profile: docker
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-  cloud:
-    function:
-      routing-expression: "'discardFunction'"
-    stream:
-      kafka:
-        binder:
-          brokers: my-kafka:9092
-      bindings:
-        functionRouter-in-0:
-          group: order
-          destination: fastfood
-          contentType: application/json
-        producer-out-0:
-          destination: fastfood
-          contentType: application/json  
