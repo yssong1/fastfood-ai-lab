@@ -28,27 +28,9 @@ public class DeliveryService {
     @Bean
     public Consumer<Message<CookStarted>> wheneverCookStarted_PropagateDeliveryCall() {
         return event -> {
-            // Logic to handle OrderPlaced
-            CookStarted cookStarted = event.getPayload();
-            Delivery delivery = new Delivery();
-            delivery.setUserId(cookStarted.getUserId());
-            delivery.setOrderId(cookStarted.getOrderId());
-            delivery.setStoreId(cookStarted.getId());
-            delivery.setAddress(cookStarted.getAddress());
-            delivery.setStatus(RiderAssigned.class.getSimpleName());
-
-            deliveryRepository.save(delivery);
+            // Logic to handle CookStarted
             
-            // Publish Domain Event
-            RiderAssigned riderAssigned = new RiderAssigned();
-            BeanUtils.copyProperties(delivery, riderAssigned);            
 
-            streamBridge.send("producer-out-0", MessageBuilder
-                .withPayload(riderAssigned)
-                .setHeader("type", RiderAssigned.class.getSimpleName())
-                .build()
-            );
-        };
     }
 
     @Bean
