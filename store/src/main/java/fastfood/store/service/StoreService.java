@@ -4,7 +4,6 @@ import fastfood.store.events.*;
 import fastfood.store.domain.Store;
 import fastfood.store.repository.StoreRepository;
 import jakarta.transaction.Transactional;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -31,49 +30,16 @@ public class StoreService {
     public Consumer<Message<OrderPlaced>> wheneverOrderPlaced_AcceptOrder() {
         return event -> {
             // Logic to handle OrderPlaced
-            OrderPlaced orderPlaced = event.getPayload();
-            Store store = new Store();
-            store.setUserId(orderPlaced.getUserId());
-            store.setOrderId(orderPlaced.getId());
-            store.setMenuId(orderPlaced.getMenuId());
-            store.setQty(orderPlaced.getQty());
-            store.setAddress(orderPlaced.getAddress());
-            store.setStatus(OrderAccepted.class.getSimpleName());
 
-            storeRepository.save(store);
 
-            // Publish Domain Event
-            OrderAccepted orderAccepted = new OrderAccepted();
-            BeanUtils.copyProperties(store, orderAccepted);
-            
-            streamBridge.send("producer-out-0", MessageBuilder
-                .withPayload(orderAccepted)
-                .setHeader("type", OrderAccepted.class.getSimpleName())
-                .build()
-            );
-        };
     }
 
     @Bean
     public Consumer<Message<OrderCancelled>> wheneverOrderCancelled_CancelCook() {
         return event -> {
             // Logic to handle OrderCancelled
-            OrderCancelled orderCancelled = event.getPayload();
-            Store store = storeRepository.findByOrderId(orderCancelled.getId());            
-            store.setStatus(CookCancelled.class.getSimpleName());
 
-            storeRepository.save(store);
 
-            // Publish Domain Event
-            CookCancelled cookCancelled = new CookCancelled();
-            BeanUtils.copyProperties(store, cookCancelled);
-
-            streamBridge.send("producer-out-0", MessageBuilder
-                .withPayload(cookCancelled)
-                .setHeader("type", CookCancelled.class.getSimpleName())
-                .build()
-            );
-        };
     }
 
     @Bean
