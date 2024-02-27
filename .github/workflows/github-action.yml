@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 env:
-  DOCKERHUB_USERNAME: your_username
-  DOCKERHUB_PASSWORD: your_password  
+  DOCKERHUB_USERNAME: yssong1
+  DOCKERHUB_PASSWORD: tnqls7791  
 
 jobs:
   
