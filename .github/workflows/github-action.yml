@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKERHUB_USERNAME: yssong1
+  DOCKERHUB_USERNAME: ys.song@ilts.co.kr
   DOCKERHUB_PASSWORD: tnqls7791  
 
 jobs:
